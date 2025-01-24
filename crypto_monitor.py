@@ -9,8 +9,10 @@ import time
 from datetime import datetime
 from threading import Lock
 from binance.client import Client
-from typing import Optional
+from typing import Optional, Tuple
 from colorama import init, Fore, Back, Style
+import pandas as pd
+import numpy as np
 
 from config.settings import (
     API_KEY, API_SECRET, UPDATE_INTERVAL,
@@ -144,6 +146,65 @@ def update_prices() -> None:
 
         print(f"\n{Fore.CYAN}{'=' * 80}")
         print(f"{Fore.YELLOW}Próxima actualización en {UPDATE_INTERVAL} segundos...")
+
+def identificar_tendencia(df: pd.DataFrame, 
+                         periodo_ema: int = 20,
+                         periodo_atr: int = 14,
+                         umbral_tendencia: float = 0.02) -> Tuple[bool, str]:
+    """
+    Identifica si hay una tendencia clara en el mercado
+    
+    Args:
+        df: DataFrame con datos OHLCV
+        periodo_ema: Período para la media móvil exponencial
+        periodo_atr: Período para el ATR
+        umbral_tendencia: Umbral mínimo de pendiente para considerar tendencia
+    
+    Returns:
+        Tuple[bool, str]: (hay_tendencia, dirección)
+    """
+    
+    # 1. Calcular EMA
+    df['EMA'] = df['close'].ewm(span=periodo_ema, adjust=False).mean()
+    
+    # 2. Calcular ATR (Average True Range)
+    df['TR'] = np.maximum(
+        df['high'] - df['low'],
+        np.maximum(
+            abs(df['high'] - df['close'].shift(1)),
+            abs(df['low'] - df['close'].shift(1))
+        )
+    )
+    df['ATR'] = df['TR'].rolling(window=periodo_atr).mean()
+    
+    # 3. Calcular pendiente de la EMA
+    pendiente = (df['EMA'].iloc[-1] - df['EMA'].iloc[-5]) / 5
+    pendiente_normalizada = pendiente / df['close'].iloc[-1]
+    
+    # 4. Calcular volatilidad relativa
+    volatilidad = df['ATR'].iloc[-1] / df['close'].iloc[-1]
+    
+    # 5. Determinar si hay tendencia clara
+    hay_tendencia = abs(pendiente_normalizada) > umbral_tendencia and \
+                    volatilidad < umbral_tendencia * 2
+    
+    # 6. Determinar dirección de la tendencia
+    direccion = 'alcista' if pendiente_normalizada > 0 else 'bajista'
+    
+    return hay_tendencia, direccion
+
+def ejecutar_estrategia(df: pd.DataFrame) -> bool:
+    """
+    Ejecuta la estrategia solo si hay una tendencia clara
+    """
+    hay_tendencia, direccion = identificar_tendencia(df)
+    
+    if not hay_tendencia:
+        print("No hay tendencia clara. Esperando mejor momento.")
+        return False
+    
+    print(f"Tendencia {direccion} detectada. Procediendo con la estrategia.")
+    return True
 
 def main():
     """Función principal."""
