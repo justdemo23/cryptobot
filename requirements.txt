@@ -1,0 +1,14 @@
+# API y Datos
+python-binance==1.0.16
+pandas==1.5.3
+numpy==1.24.3
+
+# Interfaz y Visualización
+colorama==0.4.6
+
+# Utilidades
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Logging y Debug
+logging==0.5.1.2 
