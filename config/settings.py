@@ -15,7 +15,7 @@ DB_PATH = Path('data/precios_historicos.db')
 
 # Configuración de monitoreo
 UPDATE_INTERVAL = 60  # segundos
-HISTORY_LIMIT = 30   # Aumentado para mejor análisis técnico
+HISTORY_LIMIT = 50   # Aumentado para mejor análisis técnico
 
 # Configuración de análisis técnico
 RSI_PERIOD = 14
@@ -34,5 +34,6 @@ SUPPORTED_COINS = {
     'ADA': 'Cardano',
     'AVAX': 'Avalanche',
     'DOGE': 'Dogecoin',
-    'TRX': 'TRON'
+    'TRX': 'TRON',
+    'LTC': 'Litecoin'
 } 
