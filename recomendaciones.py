@@ -3,6 +3,8 @@ import numpy as np
 from typing import Dict
 from dataclasses import dataclass
 from enum import Enum
+from crypto_monitor import identificar_tendencia
+from utils.technical_analysis import analizar_resistencias
 
 class NivelRiesgo(Enum):
     BAJO = "BAJO"
@@ -102,14 +104,14 @@ def analizar_mercado(df: pd.DataFrame):
         precio_actual = df['close'].iloc[-1]
         
         # Obtener análisis
-        analisis_tendencia = identificar_tendencia(df)
+        hay_tendencia, direccion = identificar_tendencia(df)
         analisis_resistencia = analizar_resistencias(df, precio_actual)
         
         # Generar recomendación
         recomendacion = generar_recomendacion(
             df,
             precio_actual,
-            analisis_tendencia,
+            {'hay_tendencia': hay_tendencia, 'direccion': direccion},
             analisis_resistencia
         )
         
