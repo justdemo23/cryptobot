@@ -2,6 +2,7 @@
 import pandas as pd
 from typing import Dict, Any
 from config.settings import RSI_PERIOD, MACD_FAST, MACD_SLOW, MACD_SIGNAL
+from utils.logger import logger
 
 def calcular_indicadores(precios: pd.Series) -> Dict[str, float]:
     """Calcula indicadores técnicos principales."""
@@ -39,6 +40,21 @@ def analizar_niveles(precios: pd.Series) -> Dict[str, float]:
         'distancia_resistencia': ((resistencia - actual) / actual) * 100,
         'distancia_soporte': ((actual - soporte) / actual) * 100
     }
+
+def analizar_resistencias(df: pd.DataFrame, precio_actual: float) -> Dict:
+    """Analiza niveles de soporte y resistencia"""
+    try:
+        # Cálculo simple de niveles usando máximos y mínimos recientes
+        max_reciente = df['high'].tail(20).max()
+        min_reciente = df['low'].tail(20).min()
+        
+        return {
+            'proxima_resistencia': max_reciente if max_reciente > precio_actual else None,
+            'proximo_soporte': min_reciente if min_reciente < precio_actual else None
+        }
+    except Exception as e:
+        logger.error(f"Error analizando resistencias: {e}")
+        return {'proxima_resistencia': None, 'proximo_soporte': None}
 
 def generar_recomendacion(df: pd.DataFrame) -> Dict[str, Any]:
     """Genera recomendaciones completas de trading."""
