@@ -103,11 +103,9 @@ def analizar_mercado(df: pd.DataFrame):
     try:
         precio_actual = df['close'].iloc[-1]
         
-        # Obtener análisis
         hay_tendencia, direccion = identificar_tendencia(df)
         analisis_resistencia = analizar_resistencias(df, precio_actual)
         
-        # Generar recomendación
         recomendacion = generar_recomendacion(
             df,
             precio_actual,
@@ -115,7 +113,6 @@ def analizar_mercado(df: pd.DataFrame):
             analisis_resistencia
         )
         
-        # Mostrar mensaje
         print(generar_mensaje_usuario(recomendacion))
         
     except Exception as e:

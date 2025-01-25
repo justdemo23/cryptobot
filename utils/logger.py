@@ -4,7 +4,6 @@ from pathlib import Path
 
 def setup_logger():
     """Configura y retorna el logger global."""
-    # Asegurar que existe el directorio de logs
     Path('logs').mkdir(exist_ok=True)
     
     logging.basicConfig(

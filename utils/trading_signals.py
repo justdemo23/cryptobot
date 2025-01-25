@@ -4,14 +4,12 @@ from typing import Dict, Any
 
 def calcular_indicadores(precios: pd.Series) -> Dict[str, float]:
     """Calcula indicadores técnicos principales."""
-    # RSI
     delta = precios.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
     
-    # MACD
     ema12 = precios.ewm(span=12).mean()
     ema26 = precios.ewm(span=26).mean()
     macd = ema12 - ema26
@@ -54,7 +52,6 @@ def generar_recomendacion(df: pd.DataFrame) -> Dict[str, Any]:
     señales = []
     confianza = 0
     
-    # Análisis RSI
     if indicadores['rsi'] < 30:
         señales.append(f"RSI en sobreventa ({indicadores['rsi']:.1f})")
         confianza += 2
@@ -62,7 +59,6 @@ def generar_recomendacion(df: pd.DataFrame) -> Dict[str, Any]:
         señales.append(f"RSI en sobrecompra ({indicadores['rsi']:.1f})")
         confianza -= 2
     
-    # Análisis MACD
     if indicadores['macd'] > indicadores['signal']:
         señales.append("MACD positivo")
         confianza += 1
@@ -70,12 +66,10 @@ def generar_recomendacion(df: pd.DataFrame) -> Dict[str, Any]:
         señales.append("MACD negativo")
         confianza -= 1
     
-    # Análisis de Volatilidad
     volatilidad = precios.std() / precios.mean() * 100
     if volatilidad > 5:
         señales.append(f"Volatilidad alta ({volatilidad:.1f}%)")
     
-    # Análisis de niveles
     precio_actual = precios.iloc[-1]
     if precio_actual < niveles['soporte']:
         señales.append("Precio bajo soporte")
@@ -84,7 +78,6 @@ def generar_recomendacion(df: pd.DataFrame) -> Dict[str, Any]:
         señales.append("Precio sobre resistencia")
         confianza -= 2
     
-    # Determinar acción recomendada
     if confianza >= 3:
         accion = "COMPRAR 🟢"
     elif confianza <= -3:

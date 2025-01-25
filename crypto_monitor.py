@@ -28,7 +28,6 @@ from utils.alert_signals import (
     generar_alerta_tendencia
 )
 
-# Inicializar colorama
 init(autoreset=True)
 
 print_lock = Lock()
@@ -80,17 +79,14 @@ def update_prices() -> None:
                     df = get_price_history(symbol, HISTORY_LIMIT)
                     recomendacion = generar_recomendacion(df)
                     
-                    # Cabecera de la moneda
                     print(f"\n{Fore.WHITE}{'=' * 40}")
                     print(f"{Fore.YELLOW}🪙 {name} ({symbol}/USDT)")
                     print(f"{Fore.WHITE}{'=' * 40}")
                     
-                    # Precio y variación
                     var_24h = ((price - df['price'].iloc[-1]) / df['price'].iloc[-1]) * 100
                     var_color = Fore.GREEN if var_24h >= 0 else Fore.RED
                     print(f"{Fore.WHITE}💵 Precio: {Fore.GREEN}${price:,.2f} {var_color}({var_24h:+.2f}%)")
                     
-                    # Alertas importantes en un cuadro
                     alertas_precio = generar_alerta_precio(price, recomendacion['niveles'])
                     alertas_momentum = analizar_momentum(recomendacion['indicadores'])
                     alertas_tendencia = generar_alerta_tendencia(df, recomendacion)
@@ -105,11 +101,9 @@ def update_prices() -> None:
                         if alertas_tendencia:
                             print(alertas_tendencia)
                     
-                    # Análisis técnico en formato tabla
                     print(f"\n{Fore.CYAN}📊 ANÁLISIS TÉCNICO:")
                     print(f"{Fore.WHITE}{'─' * 30}")
                     
-                    # RSI con zonas
                     rsi = recomendacion['indicadores']['rsi']
                     rsi_color = (Fore.RED if rsi > 70 else 
                                 Fore.GREEN if rsi < 30 else 
@@ -119,19 +113,16 @@ def update_prices() -> None:
                                "NEUTRAL")
                     print(f"RSI (14): {rsi_color}{rsi:.1f} - {rsi_zona}")
                     
-                    # MACD con señal
                     macd = recomendacion['indicadores']['macd']
                     macd_color = Fore.GREEN if macd > 0 else Fore.RED
                     print(f"MACD: {macd_color}{macd:.8f}")
                     
-                    # Niveles clave
                     niveles = recomendacion['niveles']
                     print(f"\n{Fore.CYAN}📈 NIVELES CLAVE:")
                     print(f"{Fore.WHITE}{'─' * 30}")
                     print(f"Soporte: {Fore.GREEN}${niveles['soporte']:,.2f} ({niveles['distancia_soporte']:.1f}%)")
                     print(f"Resistencia: {Fore.RED}${niveles['resistencia']:,.2f} ({niveles['distancia_resistencia']:.1f}%)")
                     
-                    # Recomendación final
                     print(f"\n{Fore.WHITE}🎯 RECOMENDACIÓN FINAL:")
                     print(f"{Fore.WHITE}{'─' * 30}")
                     accion_color = (Fore.GREEN if recomendacion['accion'] == 'COMPRAR' else 
@@ -164,10 +155,8 @@ def identificar_tendencia(df: pd.DataFrame,
         Tuple[bool, str]: (hay_tendencia, dirección)
     """
     
-    # 1. Calcular EMA
     df['EMA'] = df['close'].ewm(span=periodo_ema, adjust=False).mean()
     
-    # 2. Calcular ATR (Average True Range)
     df['TR'] = np.maximum(
         df['high'] - df['low'],
         np.maximum(
@@ -177,18 +166,14 @@ def identificar_tendencia(df: pd.DataFrame,
     )
     df['ATR'] = df['TR'].rolling(window=periodo_atr).mean()
     
-    # 3. Calcular pendiente de la EMA
     pendiente = (df['EMA'].iloc[-1] - df['EMA'].iloc[-5]) / 5
     pendiente_normalizada = pendiente / df['close'].iloc[-1]
     
-    # 4. Calcular volatilidad relativa
     volatilidad = df['ATR'].iloc[-1] / df['close'].iloc[-1]
     
-    # 5. Determinar si hay tendencia clara
     hay_tendencia = abs(pendiente_normalizada) > umbral_tendencia and \
                     volatilidad < umbral_tendencia * 2
     
-    # 6. Determinar dirección de la tendencia
     direccion = 'alcista' if pendiente_normalizada > 0 else 'bajista'
     
     return hay_tendencia, direccion

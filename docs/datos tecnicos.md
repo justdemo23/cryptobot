@@ -17,19 +17,17 @@ pip install python-dotenv==1.0.0
 
 ## 2. Estructura del Proyecto
 
-project/
+crypto-monitor/
 ├── config/
-│ └── settings.py # Configuraciones y constantes
-├── database/
-│ ├── connection.py # Gestión de conexiones DB
-│ └── operations.py # Operaciones CRUD
+│   └── settings.py         # usa: python-dotenv
 ├── utils/
-│ ├── logger.py # Sistema de logging
-│ ├── technical_analysis.py # Análisis técnico
-│ └── alert_signals.py # Sistema de alertas
-├── docs/ # Documentación
-└── crypto_monitor.py # Aplicación principal
-
+│   ├── technical_analysis.py  # usa: pandas, numpy
+│   ├── alert_signals.py    # usa: colorama
+│   ├── trend_analyzer.py   # usa: pandas, numpy
+│   ├── trading_signals.py  # usa: pandas
+│   └── logger.py          # usa: logging
+├── crypto_monitor.py      # usa: python-binance, colorama
+└── recomendaciones.py     # usa: pandas
 
 ## 3. Configuración Inicial
 
